@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+  <Properties>
+    <!--  SIEM Syslog Properties
+
+          Change the following properties to your Syslog configuration.
+          SiemSyslogHost:     The name or address of your Syslog host listening for log events.
+          SiemSyslogPort:     The port of your Syslog host.
+          SiemSyslogProtocol: "TCP" or "UDP"
+
+          Refer to Log4j's documentation for SyslogAppender:
+          https://logging.apache.org/log4j/2.x/manual/appenders.html#SyslogAppender
+          Advanced users can further tune the <Syslog> appender below to fit your needs.
+    -->
+    <Property name="SiemSyslogHost">localhost</Property>
+    <Property name="SiemSyslogPort">6514</Property>
+    <Property name="SiemSyslogProtocol">TCP</Property>
+
+    <!--  Agent Logging Properties
+
+          Change the following properties to configure logging for the agent itself.
+          The defaults should work for most cases.
+    -->
+    <Property name="LogPattern">%date{yyyy-MM-dd HH:mm:ss.SSS} [%-5level][%thread] %logger{1} - %msg%n</Property>
+    <Property name="LogFilePath">logs</Property>
+    <Property name="LogFileName">voyance-agent</Property>
+    <Property name="AgentLogLevel">DEBUG</Property>
+  </Properties>
+
+  <!--  The settings below should only be changed by advanced users. -->
+  <CustomLevels>
+    <CustomLevel name="SYSLOG" intLevel="50"/>
+  </CustomLevels>
+  <Appenders>
+    <Console name="console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${LogPattern}"/>
+    </Console>
+
+    <RollingFile name="rolling-file" fileName="${LogFilePath}/${LogFileName}.log"
+                 filePattern="${LogFilePath}/${LogFileName}-%d{yyyy-MM-dd}-%i.log">
+      <PatternLayout pattern="${LogPattern}"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="50 MB" />
+      </Policies>
+      <DefaultRolloverStrategy max="10"/>
+    </RollingFile>
+
+    <Syslog name="siem-syslog" host="${SiemSyslogHost}" port="${SiemSyslogPort}" protocol="${SiemSyslogProtocol}"
+            facility="LOCAL0" newLine="true">
+    </Syslog>
+  </Appenders>
+  <Loggers>
+    <Root level="${AgentLogLevel}" additivity="false">
+      <!--<AppenderRef ref="console"/>-->
+      <AppenderRef ref="rolling-file"/>
+    </Root>
+
+    <Logger name="syslog" additivity="false">
+      <AppenderRef ref="siem-syslog" level="SYSLOG"/>
+    </Logger>
+  </Loggers>
+</Configuration>
