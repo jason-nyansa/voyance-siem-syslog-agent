@@ -38,7 +38,7 @@ public class IoTOutlierListFetch extends ApiPaginatedFetch<IoTOutlier, IoTOutlie
   }
 
   @Override
-  public String defaultOutputFormat() {
+  public String defaultLogOutputFormat() {
     return "uuid=${uuid} model=${model} time=${time} outlierType=${outlierType} outlierCategory=${outlierCategory} outlierReason=${outlierReason} outlierValue=${outlierValue}";
   }
 

@@ -39,7 +39,7 @@ public class ApiSyslogAdapter extends ApiOutputAdapter {
   private String getOutputFormat(final ApiPaginatedFetch apiFetch) {
     String outputFormat = ConfigProperties.getOutputFormat(apiFetch.fetchId());
     if (StringUtils.isBlank(outputFormat)) {
-      outputFormat = apiFetch.defaultOutputFormat();
+      outputFormat = apiFetch.defaultLogOutputFormat();
     }
     return outputFormat;
   }

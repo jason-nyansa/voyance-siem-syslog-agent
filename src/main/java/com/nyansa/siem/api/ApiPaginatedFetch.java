@@ -25,26 +25,95 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Abstract class to represent a GraphQL API fetch against a query of a paginated data type.
+ * Defining common logic for performing paginated data fetches, data bindings, and output.
+ *
+ * @param <E> The individual entity type of the corresponding API data type
+ * @param <T> The wrapping paginated data type of the corresponding API data type
+ */
 public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
   private final Logger logger = LogManager.getLogger(this.getClass());
 
+  /**
+   * Override in subclass to define an unique identifier for this API fetch, for the purpose of
+   * progress tracking, logging etc.
+   * E.g. "iotOutlierList_all"
+   *
+   * @return the unique fetch ID
+   */
   public abstract String fetchId();
 
+  /**
+   * Override in subclass to specify the GraphQL API endpoint.
+   * E.g. "iotOutlierList"
+   *
+   * @return the API endpoint
+   */
   public abstract String apiEndpoint();
 
+  /**
+   * Override in subclass to provide the GraphQL API query string given certain parameters.
+   *
+   * @param pageNum       the page number to include in the query if necessary
+   * @param fromTimestamp the from timestamp (ms since epoch) to include in the query if necessary
+   * @return the API query string
+   */
   protected abstract String apiQuery(int pageNum, long fromTimestamp);
 
-  public abstract String defaultOutputFormat();
+  /**
+   * Override in subclass to provide the default log output format string of this API fetch.
+   * E.g. "uuid=${uuid} model=${model} time=${time}"
+   *
+   * @return the log format string
+   */
+  public abstract String defaultLogOutputFormat();
 
+  /**
+   * Override in subclass to provide the Class object of the paginated type T.
+   * E.g. IoTOutlierList.class
+   *
+   * @return the Class of type T
+   */
   protected abstract Class<T> getClazz();
 
+  /**
+   * Specify logic in subclass to return a Syslog CEF signature ID based on the API element.
+   * E.g. elem.getOutlierReason()
+   *
+   * @param elem  the API element
+   * @return the signature ID of the element
+   */
   public abstract String getSignatureId(E elem);
 
+  /**
+   * Specify logic in subclass to return a Syslog CEF name based on the API element.
+   * E.g. apiEndpoint()
+   *
+   * @param elem  the API element
+   * @return the CEF name of the element
+   */
   public abstract String getCEFName(E elem);
 
+  /**
+   * Specify logic in subclass to return a severity level based on the API element. The level should
+   * be between 1 (least severe) to 10 (most severe).
+   * E.g. "5"
+   *
+   * @param elem  the API element
+   * @return the severity level of the element as a string
+   */
   public abstract String getSeverity(E elem);
 
 
+  /**
+   * Fetch latest API data based on progress tracked in a local database, and output to the adapter
+   * provided.
+   *
+   * @param db            the agent database instance storing progress for each fetchId
+   * @param outputAdapter the adapter instance to receive the API elements output
+   * @return total number of API elements processed successfully
+   */
   public int fetchLatest(final AgentDB db, final ApiOutputAdapter outputAdapter) {
     final CloseableHttpClient httpClient = HttpClients.createDefault();
     int curPageNum = 1;
