@@ -13,6 +13,12 @@ integration.
 
 ## Getting started
 ### Building package
+Before building, checkout a tagged release version, e.g.
+
+```bash
+git checkout tags/v0.9.0 -b release-0.9.0
+```
+
 To build a package from source, in the project's base directory run:
 
 ```bash
@@ -149,3 +155,7 @@ Minimum dependencies are used:
 - [H2](https://h2database.com/html/main.html) the embedded SQL database for states persistence.
 - [Log4j](https://logging.apache.org/log4j/2.x/) for logging and Syslog support.
 
+## License
+Apache License Version 2.0, see [LICENSE](https://github.com/Nyansa/voyance-siem-syslog-agent/blob/master/LICENSE.txt)
+
+For dependency licenses, see [DEPENDENCIES](https://github.com/Nyansa/voyance-siem-syslog-agent/blob/master/DEPENDENCIES.txt)
