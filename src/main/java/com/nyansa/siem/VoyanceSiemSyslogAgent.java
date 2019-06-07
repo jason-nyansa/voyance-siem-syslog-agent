@@ -9,9 +9,9 @@ package com.nyansa.siem;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,11 +25,12 @@ import com.nyansa.siem.api.IoTOutlierListFetch;
 import com.nyansa.siem.api.adapters.ApiOutputAdapter;
 import com.nyansa.siem.api.adapters.ApiSyslogAdapter;
 import com.nyansa.siem.util.AgentDB;
-import com.nyansa.siem.util.ConfigProperties;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import static com.nyansa.siem.util.ConfigProperties.configProperties;
 
 public class VoyanceSiemSyslogAgent {
   private static final Logger logger = LogManager.getLogger(VoyanceSiemSyslogAgent.class);
@@ -41,7 +42,7 @@ public class VoyanceSiemSyslogAgent {
     logger.info("VoyanceSiemSyslogAgent started");
 
     try {
-      ConfigProperties.validateAll();
+      configProperties().validateAll();
       agentDb = new AgentDB();
       syslogAdapter = new ApiSyslogAdapter();
       final IoTOutlierListFetch iotOutliersFetch = new IoTOutlierListFetch();
@@ -49,7 +50,7 @@ public class VoyanceSiemSyslogAgent {
       while (true) {
         fetchApi(iotOutliersFetch);
 
-        Thread.sleep(ConfigProperties.getApiPullFreqSecs() * 1000);
+        Thread.sleep(configProperties().getApiPullFreqSecs() * 1000);
       }
     } catch (Exception e) {
       logger.error("Caught fatal exception, aborting: {}", ExceptionUtils.getStackTrace(e));

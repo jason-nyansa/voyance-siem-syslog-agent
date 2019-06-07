@@ -9,9 +9,9 @@ package com.nyansa.siem.api;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.nyansa.siem.api.adapters.ApiOutputAdapter;
 import com.nyansa.siem.api.models.PaginatedResults;
 import com.nyansa.siem.util.AgentDB;
-import com.nyansa.siem.util.ConfigProperties;
-import com.nyansa.siem.util.JsonUtil;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.HttpHeaders;
@@ -44,6 +42,9 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.nyansa.siem.util.ConfigProperties.configProperties;
+import static com.nyansa.siem.util.JsonUtil.jsonUtil;
 
 /**
  * Abstract class to represent a GraphQL API fetch against a query of a paginated data type.
@@ -142,7 +143,7 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
     // determine the timestamp to start reading new data from
     Timestamp fromTs = db.getLastReadTs(fetchId());
     if (fromTs == null || isTimestampStale(fromTs)) {
-      fromTs = new Timestamp(System.currentTimeMillis() - ConfigProperties.getDefaultLookbackSecs() * 1000);
+      fromTs = new Timestamp(System.currentTimeMillis() - configProperties().getDefaultLookbackSecs() * 1000);
     }
 
     // start fetching and processing data page by page
@@ -171,14 +172,14 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
   private T fetchPage(final HttpClient httpClient, final int pageNum, final Timestamp fromTs) {
     final Map<String, Object> apiQuery = new HashMap<>();
     apiQuery.put("query", apiQuery(pageNum, fromTs.getTime() + 1));
-    final String apiQueryJson = JsonUtil.dump(apiQuery);
+    final String apiQueryJson = jsonUtil().dump(apiQuery);
     assert(apiQueryJson != null);
 
-    final HttpPost postReq = new HttpPost(ConfigProperties.getApiUrl());
+    final HttpPost postReq = new HttpPost(configProperties().getApiUrl());
     postReq.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
     postReq.addHeader(HttpHeaders.ACCEPT_ENCODING, "gzip");
     postReq.addHeader(HttpHeaders.ACCEPT_ENCODING, "application/json");
-    postReq.addHeader("api-token", ConfigProperties.getApiToken());
+    postReq.addHeader("api-token", configProperties().getApiToken());
     postReq.setEntity(new StringEntity(apiQueryJson, ContentType.APPLICATION_JSON));
 
     try {
@@ -191,11 +192,11 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
       logger.debug("HTTP status: {} {}, length {}", httpStatus, httpReason, resp.getEntity().getContentLength());
 
       if (httpStatus == 200) {
-        JsonNode jsonNode = JsonUtil.parseTree(resp.getEntity().getContent());
+        JsonNode jsonNode = jsonUtil().parseTree(resp.getEntity().getContent());
         if (jsonNode != null && !jsonNode.isNull()) {
           JsonNode respData = jsonNode.get("data");
           if (respData != null && !respData.isNull()) {
-            T paginatedResults = JsonUtil.parse(respData.get(apiEndpoint()), getClazz());
+            T paginatedResults = jsonUtil().parse(respData.get(apiEndpoint()), getClazz());
             if (paginatedResults != null) {
               return paginatedResults;
             }

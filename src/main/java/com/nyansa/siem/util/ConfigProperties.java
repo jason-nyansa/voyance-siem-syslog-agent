@@ -9,9 +9,9 @@ package com.nyansa.siem.util;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,14 +35,28 @@ import java.util.regex.Pattern;
 public class ConfigProperties {
   private static final Logger logger = LogManager.getLogger(ConfigProperties.class);
 
-  private static Properties props;
-  static {
-    props = new Properties();
-    try {
-      props.load(ConfigProperties.class.getClassLoader().getResourceAsStream("config.properties"));
-    } catch (IOException e) {
-      logger.error("Caught exception: {}", ExceptionUtils.getStackTrace(e));
+  private static ConfigProperties _instance = null;
+
+  private Properties props;
+  private String validatedCefHeader = null;
+
+  public static synchronized ConfigProperties configProperties() {
+    if (_instance == null) {
+      _instance = new ConfigProperties(null);
     }
+    return _instance;
+  }
+
+  ConfigProperties(Properties inProps) {
+    if (inProps == null) {
+      inProps = new Properties();
+      try {
+        inProps.load(ConfigProperties.class.getClassLoader().getResourceAsStream("config.properties"));
+      } catch (IOException e) {
+        logger.error("Caught exception: {}", ExceptionUtils.getStackTrace(e));
+      }
+    }
+    props = inProps;
   }
 
   static final class PropertyNames {
@@ -55,7 +69,7 @@ public class ConfigProperties {
     static final String OUTPUT_FORMAT_PREIFX = "output.format.";
   }
 
-  public static void validateAll() {
+  public void validateAll() {
     getApiUrl();
     getApiToken();
     getApiPullFreqSecs();
@@ -64,15 +78,15 @@ public class ConfigProperties {
     getOutputDatetimeFormat();
   }
 
-  public static String getApiUrl() {
+  public String getApiUrl() {
     return requiredProperty(PropertyNames.API_URL);
   }
 
-  public static String getApiToken() {
+  public String getApiToken() {
     return requiredProperty(PropertyNames.API_TOKEN);
   }
 
-  public static long getApiPullFreqSecs() {
+  public long getApiPullFreqSecs() {
     long freqSecs = Long.parseLong(props.getProperty(PropertyNames.API_PULL_FREQ, "60"));
     if (freqSecs < 60) {
       throw new IllegalArgumentException(PropertyNames.API_PULL_FREQ + " must be >= 60");
@@ -80,12 +94,11 @@ public class ConfigProperties {
     return freqSecs;
   }
 
-  public static long getDefaultLookbackSecs() {
+  public long getDefaultLookbackSecs() {
     return Long.parseLong(props.getProperty(PropertyNames.DEFAULT_LOOKBACK, "86400"));
   }
 
-  private static String validatedCefHeader = null;
-  public static String getOutputCEFHeader() {
+  public String getOutputCEFHeader() {
     if (validatedCefHeader != null) {
       return validatedCefHeader;
     }
@@ -109,16 +122,16 @@ public class ConfigProperties {
     return validatedCefHeader;
   }
 
-  public static String getOutputDatetimeFormat() {
+  public String getOutputDatetimeFormat() {
     return props.getProperty(PropertyNames.OUTPUT_DATETIME_FORMAT);
   }
 
-  public static String getOutputFormat(final String fetchId) {
+  public String getOutputFormat(final String fetchId) {
     return props.getProperty(PropertyNames.OUTPUT_FORMAT_PREIFX + fetchId);
   }
 
 
-  private static String requiredProperty(String propName) {
+  private String requiredProperty(String propName) {
     final String propValue = props.getProperty(propName);
     if (StringUtils.isBlank(propValue)) {
       throw new IllegalArgumentException(propName + " must present in config.properties and not be blank");

@@ -9,9 +9,9 @@ package com.nyansa.siem.util;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,12 +35,19 @@ import java.sql.Timestamp;
 public class AgentDB {
   private static final Logger logger = LogManager.getLogger(AgentDB.class);
 
-  private static final String DB_NAME = "voyance-agent";
+  private static final String DEFAULT_DB_NAME = "voyance-agent";
   private Connection conn;
 
   public AgentDB() throws SQLException {
+    this(DEFAULT_DB_NAME);
+  }
+
+  AgentDB(String dbName) throws SQLException {
+    if (dbName == null) {
+      dbName = DEFAULT_DB_NAME;
+    }
     try {
-      conn = DriverManager.getConnection("jdbc:h2:file:./" + DB_NAME);
+      conn = DriverManager.getConnection("jdbc:h2:file:./" + dbName);
       conn.setAutoCommit(true);
       createTables();
     } catch (SQLException e) {

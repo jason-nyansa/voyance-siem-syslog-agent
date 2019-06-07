@@ -9,9 +9,9 @@ package com.nyansa.siem.util;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,18 +40,30 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
 
+import static com.nyansa.siem.util.ConfigProperties.configProperties;
+
 public class JsonUtil {
   private static final Logger logger = LogManager.getLogger(JsonUtil.class);
 
-  private static ObjectMapper mapper;
-  private static ObjectMapper outMapper;
-  static {
+  private static JsonUtil _instance = null;
+
+  private ObjectMapper mapper;
+  private ObjectMapper outMapper;
+
+  public static synchronized JsonUtil jsonUtil() {
+    if (_instance == null) {
+      _instance = new JsonUtil(configProperties());
+    }
+    return _instance;
+  }
+
+  JsonUtil(final ConfigProperties configProps) {
     mapper = new ObjectMapper();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     outMapper = mapper.copy();
-    final String dfs = ConfigProperties.getOutputDatetimeFormat();
-    if (dfs != null) {
+    final String dfs = configProps.getOutputDatetimeFormat();
+    if (StringUtils.isNotBlank(dfs)) {
       outMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
       final DateFormat df = new SimpleDateFormat(dfs);
       final TimeZone utc = TimeZone.getTimeZone("UTC");
@@ -60,7 +73,7 @@ public class JsonUtil {
     }
   }
 
-  public static <T> T parse(final String str, final Class<T> clazz) {
+  public <T> T parse(final String str, final Class<T> clazz) {
     try {
       return mapper.readValue(str, clazz);
     } catch (IOException e) {
@@ -69,7 +82,7 @@ public class JsonUtil {
     }
   }
 
-  public static <T> T parse(final InputStream is, final Class<T> clazz) {
+  public <T> T parse(final InputStream is, final Class<T> clazz) {
     try {
       return mapper.readValue(is, clazz);
     } catch (IOException e) {
@@ -78,7 +91,7 @@ public class JsonUtil {
     }
   }
 
-  public static <T> T parse(final JsonNode jsonNode, final Class<T> clazz) {
+  public <T> T parse(final JsonNode jsonNode, final Class<T> clazz) {
     try {
       return mapper.treeToValue(jsonNode, clazz);
     } catch (IOException e) {
@@ -87,7 +100,7 @@ public class JsonUtil {
     }
   }
 
-  public static JsonNode parseTree(final InputStream is) {
+  public JsonNode parseTree(final InputStream is) {
     try {
       return mapper.readTree(is);
     } catch (IOException e) {
@@ -96,7 +109,7 @@ public class JsonUtil {
     }
   }
 
-  public static String dump(final Object obj) {
+  public String dump(final Object obj) {
     try {
       return outMapper.writeValueAsString(obj);
     } catch (JsonProcessingException e) {
@@ -105,7 +118,7 @@ public class JsonUtil {
     }
   }
 
-  public static Map<String, String> dumpAsProperties(final Object obj) {
+  public Map<String, String> dumpAsProperties(final Object obj) {
     try {
       final JsonNode jsonNode = outMapper.valueToTree(obj);
       if (jsonNode.isObject()) {
