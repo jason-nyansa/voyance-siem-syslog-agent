@@ -28,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
@@ -59,7 +58,6 @@ class JsonUtilTest {
     mockConfigProps = mock(ConfigProperties.class);
     when(mockConfigProps.getOutputDatetimeFormat()).thenReturn(dateFormatStr);
     testJsonUtil = new JsonUtil(mockConfigProps);
-    MockitoAnnotations.initMocks(this);
   }
 
   @Test

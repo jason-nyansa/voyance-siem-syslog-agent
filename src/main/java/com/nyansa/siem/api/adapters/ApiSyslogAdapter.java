@@ -21,6 +21,7 @@ package com.nyansa.siem.api.adapters;
  */
 
 import com.nyansa.siem.api.ApiPaginatedFetch;
+import com.nyansa.siem.util.ConfigProperties;
 import com.nyansa.siem.util.SyslogLogger;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,24 @@ import static com.nyansa.siem.util.JsonUtil.jsonUtil;
 
 public class ApiSyslogAdapter extends ApiOutputAdapter {
 
+  private SyslogLogger syslogLogger;
+  private ConfigProperties configProps;
+
+  public ApiSyslogAdapter() {
+    this(null, null);
+  }
+
+  public ApiSyslogAdapter(SyslogLogger inSyslogLogger, ConfigProperties inConfigProps) {
+    if (inSyslogLogger == null) {
+      inSyslogLogger = new SyslogLogger();
+    }
+    if (inConfigProps == null) {
+      inConfigProps = configProperties();
+    }
+    syslogLogger = inSyslogLogger;
+    configProps = inConfigProps;
+  }
+
   @Override
   public <E> boolean processOne(final ApiPaginatedFetch<E, ?> apiFetch, final E elem) {
     // convert API element base on configured format and output to syslog
@@ -41,7 +60,7 @@ public class ApiSyslogAdapter extends ApiOutputAdapter {
     if (elemProps != null) {
       String logBody = new StringSubstitutor(elemProps).replace(getOutputFormat(apiFetch));
 
-      final String cefHeaderFormat = configProperties().getOutputCEFHeader();
+      final String cefHeaderFormat = configProps.getOutputCEFHeader();
       if (StringUtils.isNotBlank(cefHeaderFormat)) {
         // if a CEF header is configured, resolve variables and use original log body as CEF Extension
         final Map<String, String> cefProps = new HashMap<>();
@@ -52,13 +71,13 @@ public class ApiSyslogAdapter extends ApiOutputAdapter {
         logBody = new StringSubstitutor(cefProps).replace(cefHeaderFormat);
       }
 
-      return SyslogLogger.send(logBody);
+      return syslogLogger.send(logBody);
     }
     return false;
   }
 
   private String getOutputFormat(final ApiPaginatedFetch apiFetch) {
-    String outputFormat = configProperties().getOutputFormat(apiFetch.fetchId());
+    String outputFormat = configProps.getOutputFormat(apiFetch.fetchId());
     if (StringUtils.isBlank(outputFormat)) {
       outputFormat = apiFetch.defaultLogOutputFormat();
     }

@@ -30,7 +30,8 @@ import java.util.Properties;
 
 import static com.nyansa.siem.util.ConfigProperties.PropertyNames.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 class ConfigPropertiesTest {
@@ -42,8 +43,6 @@ class ConfigPropertiesTest {
 
   @BeforeEach
   void setup() {
-    mockProps = mock(Properties.class);
-    testCp = new ConfigProperties(mockProps);
     MockitoAnnotations.initMocks(this);
   }
 
@@ -71,26 +70,26 @@ class ConfigPropertiesTest {
 
   @Test
   void testApiPullFreqSecs() {
-    when(mockProps.getProperty(API_PULL_FREQ, "60")).thenReturn("60"); // default
+    when(mockProps.getProperty(eq(API_PULL_FREQ), any(String.class))).thenCallRealMethod(); // default
     assertEquals(60L, testCp.getApiPullFreqSecs());
 
-    when(mockProps.getProperty(API_PULL_FREQ, "60")).thenReturn("30");
+    when(mockProps.getProperty(eq(API_PULL_FREQ), any(String.class))).thenReturn("30");
     Throwable thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.getApiPullFreqSecs());
     assertTrue(thrownEx.getMessage().startsWith(API_PULL_FREQ + " must be >="));
 
-    when (mockProps.getProperty(API_PULL_FREQ, "60")).thenReturn("120");
+    when (mockProps.getProperty(eq(API_PULL_FREQ), any(String.class))).thenReturn("120");
     assertEquals(120L, testCp.getApiPullFreqSecs());
 
-    when(mockProps.getProperty(API_PULL_FREQ, "60")).thenReturn("invalid");
+    when(mockProps.getProperty(eq(API_PULL_FREQ), any(String.class))).thenReturn("invalid");
     assertThrows(NumberFormatException.class, () -> testCp.getApiPullFreqSecs());
   }
 
   @Test
   void testDefaultLookbackSecs() {
-    when(mockProps.getProperty(DEFAULT_LOOKBACK, "86400")).thenReturn("86400"); // default
+    when(mockProps.getProperty(eq(DEFAULT_LOOKBACK), any(String.class))).thenCallRealMethod(); // default
     assertEquals(86400L, testCp.getDefaultLookbackSecs());
 
-    when(mockProps.getProperty(DEFAULT_LOOKBACK, "86400")).thenReturn("invalid");
+    when(mockProps.getProperty(eq(DEFAULT_LOOKBACK), any(String.class))).thenReturn("invalid");
     assertThrows(NumberFormatException.class, () -> testCp.getDefaultLookbackSecs());
   }
 

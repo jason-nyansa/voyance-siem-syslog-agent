@@ -26,8 +26,8 @@ import org.junit.jupiter.api.BeforeAll;
 import java.io.File;
 import java.sql.SQLException;
 
-abstract class AbstractDBTest {
-  static AgentDB agentDb = null;
+public abstract class AbstractDBTest {
+  protected static AgentDB agentDb = null;
   private static final String TEST_DB_NAME = "voyance-agent-test";
 
   @BeforeAll

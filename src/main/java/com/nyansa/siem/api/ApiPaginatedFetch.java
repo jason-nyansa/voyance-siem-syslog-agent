@@ -169,7 +169,7 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
     return totalCount;
   }
 
-  private T fetchPage(final HttpClient httpClient, final int pageNum, final Timestamp fromTs) {
+  T fetchPage(final HttpClient httpClient, final int pageNum, final Timestamp fromTs) {
     final Map<String, Object> apiQuery = new HashMap<>();
     apiQuery.put("query", apiQuery(pageNum, fromTs.getTime() + 1));
     final String apiQueryJson = jsonUtil().dump(apiQuery);
