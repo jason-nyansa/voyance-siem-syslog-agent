@@ -16,7 +16,7 @@ integration.
 Before building, checkout a tagged release version, e.g.
 
 ```bash
-git checkout tags/v0.9.0 -b release-0.9.0
+git checkout tags/v0.9.1 -b release-0.9.1
 ```
 
 To build a package from source, in the project's base directory run:
@@ -29,7 +29,7 @@ This should generate two packages under `target` with the name `VoyanceSiemSyslo
 Pick your preferred file format and untar/unzip it to any directory you like, e.g.
 
 ```bash
-tar xf VoyanceSiemSyslogAgent-0.9.0-package.tar.gz
+tar xf VoyanceSiemSyslogAgent-0.9.1-package.tar.gz
 ```
 
 Inside the unzipped directory you should see a script `VoyanceSiemSyslogAgent.sh`, directories
