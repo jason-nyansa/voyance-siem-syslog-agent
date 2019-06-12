@@ -102,10 +102,11 @@ public class VoyanceSiemSyslogAgent {
 
     configProperties().validateAll();
     VoyanceSiemSyslogAgent agent = new VoyanceSiemSyslogAgent();
-    agent.start();
+    int status = agent.start();
+    System.exit(status);
   }
 
-  void start() {
+  int start() {
     logger.info("VoyanceSiemSyslogAgent started");
 
     try {
@@ -130,19 +131,23 @@ public class VoyanceSiemSyslogAgent {
             f.get(); // propagate exception if any
           }
         }
-        terminated = executorService.awaitTermination(60, TimeUnit.SECONDS);
+        terminated = awaitTermination();
       }
 
       logger.info("VoyanceSiemSyslogAgent terminated");
-      System.exit(0);
+      return 0;
     } catch (Exception e) {
       logger.error("Caught fatal exception, aborting: {}", ExceptionUtils.getStackTrace(e));
-      System.exit(1);
+      return 1;
     } finally {
       if (agentDb != null) {
         agentDb.close();
       }
     }
+  }
+
+  boolean awaitTermination() throws InterruptedException {
+    return executorService.awaitTermination(60, TimeUnit.SECONDS);
   }
 
   private void fetchApi(final ApiPaginatedFetch api) {

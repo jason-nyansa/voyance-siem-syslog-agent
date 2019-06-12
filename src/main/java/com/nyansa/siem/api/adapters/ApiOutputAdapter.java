@@ -9,9 +9,9 @@ package com.nyansa.siem.api.adapters;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,9 +23,9 @@ package com.nyansa.siem.api.adapters;
 import com.nyansa.siem.api.ApiPaginatedFetch;
 
 /**
- * Abstract adapter class for processing API output data elements.
+ * Adapter interface for processing API output data elements.
  */
-public abstract class ApiOutputAdapter {
+public interface ApiOutputAdapter {
 
   /**
    * Specify logic in subclass to process one API element and emit to an output.
@@ -35,5 +35,5 @@ public abstract class ApiOutputAdapter {
    * @param <E>      the generic type captured for the element
    * @return true if the element is processed successfully, false otherwise
    */
-  public abstract <E> boolean processOne(final ApiPaginatedFetch<E, ?> apiFetch, final E elem);
+  public <E> boolean processOne(final ApiPaginatedFetch<E, ?> apiFetch, final E elem);
 }

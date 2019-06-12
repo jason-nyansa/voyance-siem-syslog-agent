@@ -1,8 +1,8 @@
 
 Lists of 12 third-party dependencies.
      (Apache License, Version 2.0) Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.9.0 - http://github.com/FasterXML/jackson)
-     (Apache License, Version 2.0) Jackson-core (com.fasterxml.jackson.core:jackson-core:2.9.8 - https://github.com/FasterXML/jackson-core)
-     (Apache License, Version 2.0) jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.9.8 - http://github.com/FasterXML/jackson)
+     (Apache License, Version 2.0) Jackson-core (com.fasterxml.jackson.core:jackson-core:2.9.9 - https://github.com/FasterXML/jackson-core)
+     (Apache License, Version 2.0) jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.9.9 - http://github.com/FasterXML/jackson)
      (MPL 2.0 or EPL 1.0) H2 Database Engine (com.h2database:h2:1.4.197 - http://www.h2database.com)
      (Apache License, Version 2.0) Apache Commons Codec (commons-codec:commons-codec:1.11 - http://commons.apache.org/proper/commons-codec/)
      (Apache License, Version 2.0) Apache Commons Logging (commons-logging:commons-logging:1.2 - http://commons.apache.org/proper/commons-logging/)

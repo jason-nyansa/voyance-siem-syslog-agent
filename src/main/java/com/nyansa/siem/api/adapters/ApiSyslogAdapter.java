@@ -33,7 +33,7 @@ import java.util.Map;
 import static com.nyansa.siem.util.ConfigProperties.configProperties;
 import static com.nyansa.siem.util.JsonUtil.jsonUtil;
 
-public class ApiSyslogAdapter extends ApiOutputAdapter {
+public class ApiSyslogAdapter implements ApiOutputAdapter {
 
   private SyslogLogger syslogLogger;
   private ConfigProperties configProps;
