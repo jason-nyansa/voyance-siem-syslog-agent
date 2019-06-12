@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.nyansa.siem</groupId>
   <artifactId>VoyanceSiemSyslogAgent</artifactId>
-  <version>0.9.1-SNAPSHOT</version>
+  <version>0.9.1</version>
   <organization>
     <name>Nyansa, Inc.</name>
     <url>https://www.nyansa.com</url>
@@ -71,7 +71,7 @@
 
   <scm>
     <developerConnection>scm:git:git@github.com:Nyansa/voyance-siem-syslog-agent.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v0.9.1</tag>
   </scm>
 
   <build>
