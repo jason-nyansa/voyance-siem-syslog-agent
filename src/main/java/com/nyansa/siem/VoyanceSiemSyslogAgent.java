@@ -21,37 +21,120 @@ package com.nyansa.siem;
  */
 
 import com.nyansa.siem.api.ApiPaginatedFetch;
+import com.nyansa.siem.api.IoTDeviceStatsListFetch;
 import com.nyansa.siem.api.IoTOutlierListFetch;
 import com.nyansa.siem.api.adapters.ApiOutputAdapter;
 import com.nyansa.siem.api.adapters.ApiSyslogAdapter;
+import com.nyansa.siem.api.models.AggregatedWindow;
 import com.nyansa.siem.util.AgentDB;
+import com.nyansa.siem.util.ConfigProperties;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.nyansa.siem.util.ConfigProperties.configProperties;
 
 public class VoyanceSiemSyslogAgent {
   private static final Logger logger = LogManager.getLogger(VoyanceSiemSyslogAgent.class);
 
-  private static AgentDB agentDb;
-  private static ApiOutputAdapter syslogAdapter;
+  private AgentDB agentDb;
+  private ApiOutputAdapter outputAdapter;
+  private ConfigProperties configProps;
+  private ScheduledExecutorService executorService;
+  private List<ApiPaginatedFetch> apiFetches;
 
-  public static void main(String[] args) {
+  public static final List<ApiPaginatedFetch> AllAvailableApiFetches = Arrays.asList(
+      new IoTOutlierListFetch(),
+      new IoTDeviceStatsListFetch(AggregatedWindow.Last3Hours),
+      new IoTDeviceStatsListFetch(AggregatedWindow.Last24Hours),
+      new IoTDeviceStatsListFetch(AggregatedWindow.Last7Days),
+      new IoTDeviceStatsListFetch(AggregatedWindow.Last14Days)
+  );
+
+  private VoyanceSiemSyslogAgent() throws SQLException {
+    this(null, null, null);
+  }
+
+  VoyanceSiemSyslogAgent(AgentDB inAgentDb, ApiOutputAdapter inOutputAdapter, ConfigProperties inConfigProps) throws SQLException {
+    if (inAgentDb == null) {
+      inAgentDb = new AgentDB();
+    }
+    if (inOutputAdapter == null) {
+      inOutputAdapter = new ApiSyslogAdapter();
+    }
+    if (inConfigProps == null) {
+      inConfigProps = configProperties();
+    }
+    agentDb = inAgentDb;
+    outputAdapter = inOutputAdapter;
+    configProps = inConfigProps;
+    executorService = Executors.newScheduledThreadPool(configProps.getApiPullThreads());
+    apiFetches = configProps.getApiFetchesEnabled();
+  }
+
+  public static void main(String[] args) throws SQLException {
+    if (args.length > 0) {
+      switch (args[0]) {
+        case "validate": {
+          configProperties().validateAll();
+          System.out.println("config.properties validated, no issues found.");
+          break;
+        }
+        case "show_apis": {
+          System.out.println("All available APIs:");
+          AllAvailableApiFetches.forEach(api -> System.out.println(api.fetchId()));
+          break;
+        }
+      }
+      System.exit(0);
+    }
+
+    configProperties().validateAll();
+    VoyanceSiemSyslogAgent agent = new VoyanceSiemSyslogAgent();
+    agent.start();
+  }
+
+  void start() {
     logger.info("VoyanceSiemSyslogAgent started");
 
     try {
-      configProperties().validateAll();
-      agentDb = new AgentDB();
-      syslogAdapter = new ApiSyslogAdapter();
-      final IoTOutlierListFetch iotOutliersFetch = new IoTOutlierListFetch();
+      List<Future<?>> futures = new ArrayList<>();
 
-      while (true) {
-        fetchApi(iotOutliersFetch);
-
-        Thread.sleep(configProperties().getApiPullFreqSecs() * 1000);
+      for (ApiPaginatedFetch api : apiFetches) {
+        long pullFreqSecs = configProps.getApiPullFreqSecs(api.fetchId());
+        long initDelaySecs = 0;
+        Timestamp lastRead = agentDb.getLastReadTs(api.fetchId());
+        if (lastRead != null) {
+          initDelaySecs = (lastRead.getTime() + (pullFreqSecs * 1000) - System.currentTimeMillis()) / 1000;
+          initDelaySecs = Math.max(initDelaySecs, 0);
+        }
+        futures.add(executorService.scheduleWithFixedDelay(() -> fetchApi(api), initDelaySecs, pullFreqSecs, TimeUnit.SECONDS));
+        logger.info("Scheduled {} every {} seconds, after a delay of {} seconds", api.fetchId(), pullFreqSecs, initDelaySecs);
       }
+
+      boolean terminated = false;
+      while (!terminated) {
+        for (Future f : futures) {
+          if (f.isDone()) {
+            f.get(); // propagate exception if any
+          }
+        }
+        terminated = executorService.awaitTermination(60, TimeUnit.SECONDS);
+      }
+
+      logger.info("VoyanceSiemSyslogAgent terminated");
+      System.exit(0);
     } catch (Exception e) {
       logger.error("Caught fatal exception, aborting: {}", ExceptionUtils.getStackTrace(e));
       System.exit(1);
@@ -62,9 +145,9 @@ public class VoyanceSiemSyslogAgent {
     }
   }
 
-  private static void fetchApi(final ApiPaginatedFetch apiFetch) {
-    logger.info("Fetching {} ...", apiFetch.fetchId());
-    int sentCount = apiFetch.fetchLatest(agentDb, syslogAdapter);
-    logger.info("{} {} lines sent", apiFetch.fetchId(), sentCount);
+  private void fetchApi(final ApiPaginatedFetch api) {
+    logger.info("Fetching {} ...", api.fetchId());
+    int sentCount = api.fetchLatest(agentDb, outputAdapter);
+    logger.info("{} {} lines sent", api.fetchId(), sentCount);
   }
 }

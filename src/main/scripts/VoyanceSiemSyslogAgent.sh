@@ -87,6 +87,10 @@ agent_db_reset() {
     fi
 }
 
+agent_run_util() {
+    java -Dfile.encoding=UTF-8 -jar "jars/$JAR_NAME" "$1"
+}
+
 
 case "$1" in
     start)
@@ -104,6 +108,12 @@ case "$1" in
     db_reset)
         agent_db_reset
         ;;
+    validate)
+        agent_run_util validate
+        ;;
+    show_apis)
+        agent_run_util show_apis
+        ;;
     *)
         echo "Usage: $0 { start | stop | restart | status | db_reset }"
         echo "      start:      starting the the agent"
@@ -111,6 +121,8 @@ case "$1" in
         echo "      restart:    restart the agent"
         echo "      status:     check whether the agent is running"
         echo "      db_reset:   resetting the agent's local database and all API fetch progress to its initial state"
+        echo "      validate:   validate \"config.properties\" for configuration errors"
+        echo "      show_apis:  show all available API fetch IDs"
         echo ""
         ;;
 esac

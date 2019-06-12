@@ -40,7 +40,7 @@ Before you can launch the agent there are two configuration files you will need 
 
 ##### `config/config.properties`
 This is the agent's configuration file, you will need to provide your Voyance GraphQL v2 URL and
-access token.
+access token. In addition, you can configure which API data fetches you want to enable.
 
 ```properties
 # ======================================================================
@@ -64,6 +64,26 @@ voyance.dev.api.url=
 # required:     yes
 # ======================================================================
 voyance.dev.api.token=
+
+# ======================================================================
+# API Data Fetches Enabled
+#
+# description:  A comma-separated list of API fetch IDs that should be
+#               enabled.
+#
+#               The current available API fetch IDs are:
+#               iotOutlierList_all
+#               iotDeviceStatsList_last3h
+#               iotDeviceStatsList_last24h
+#               iotDeviceStatsList_last7d
+#               iotDeviceStatsList_last14d
+#
+# example:      iotOutlierList_all,iotDeviceStatsList_last24h
+# required:     yes
+# ======================================================================
+api.fetches.enabled=iotOutlierList_all,iotDeviceStatsList_last24h
+
+...
 ```
 
 ##### `config/log4j2.xml`
@@ -106,6 +126,8 @@ Usage: ./VoyanceSiemSyslogAgent.sh { start | stop | restart | status | db_reset 
       restart:    restart the agent
       status:     check whether the agent is running
       db_reset:   resetting the agent's local database and all API fetch progress to its initial state
+      validate:   validate "config.properties" for configuration errors
+      show_apis:  show all available API fetch IDs
 ```
 
 The usage should be self-explanatory, once the agent is started, monitor any errors in the log file,
@@ -125,8 +147,8 @@ script.
 
 ## Customizations
 The `config.properties` and `log4j2.xml` files contain certain level of configurations and
-customizations such as API pull frequency, log format per API data type, and more detailed Syslog
-settings etc.
+customizations such as API fetches to enable, API pull frequency, log format per API data type, and
+more detailed Syslog settings etc.
 
 But there are only so many customizations this reference implementation can provide.
 It is possible to modify and extend the source code to suit your exact integration needs. The Java
@@ -141,7 +163,8 @@ marshalling.
 that need to be overridden and you can look into how `IoTOutlierListFetch` is done for an example.
 The API data will be fetched page by page and marshalled into the POJO classes. API elements will
 be emitted to the output adapter (currently Syslog).
-3. Add the new API fetch handle to `VoyanceSiemSyslogAgent`.
+3. Add the new API fetch handle to `VoyanceSiemSyslogAgent.AllAvailableApiFetches`, now users can
+edit `config.properties` to enable and configure it.
 
 ##### Adding new output adapters
 1. Other output adapters besides Syslog can also be added by extending `ApiOutputAdapter`, look at

@@ -69,9 +69,46 @@ class ConfigPropertiesTest {
   }
 
   @Test
+  void testApiFetchesEnabled() {
+    when(mockProps.getProperty(API_FETCHES_ENABLED)).thenReturn("");
+    Throwable thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.uncached().getApiFetchesEnabled());
+    assertTrue(thrownEx.getMessage().startsWith(API_FETCHES_ENABLED + " must present"));
+
+    String apisStr = "iotOutlierList_all,iotDeviceStatsList_last24h";
+    when(mockProps.getProperty(API_FETCHES_ENABLED)).thenReturn(apisStr);
+    assertEquals(2, testCp.uncached().getApiFetchesEnabled().size());
+
+    apisStr = "iotOutlierList_all";
+    when(mockProps.getProperty(API_FETCHES_ENABLED)).thenReturn(apisStr);
+    assertEquals(1, testCp.uncached().getApiFetchesEnabled().size());
+
+    apisStr = "iotOutlierList_all,invalid";
+    when(mockProps.getProperty(API_FETCHES_ENABLED)).thenReturn(apisStr);
+    thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.uncached().getApiFetchesEnabled());
+    assertTrue(thrownEx.getMessage().startsWith(API_FETCHES_ENABLED + " contains invalid API fetch ID"));
+
+    apisStr = "invalid";
+    when(mockProps.getProperty(API_FETCHES_ENABLED)).thenReturn(apisStr);
+    thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.uncached().getApiFetchesEnabled());
+    assertTrue(thrownEx.getMessage().startsWith(API_FETCHES_ENABLED + " contains invalid API fetch ID"));
+  }
+
+  @Test
   void testApiPullFreqSecs() {
     when(mockProps.getProperty(eq(API_PULL_FREQ), any(String.class))).thenCallRealMethod(); // default
     assertEquals(60L, testCp.getApiPullFreqSecs());
+    {
+      // test per API fetch overrides
+      final String fetchId = "fetchId";
+      assertEquals(60L, testCp.getApiPullFreqSecs(fetchId));
+
+      when(mockProps.getProperty(API_PULL_FREQ + "." + fetchId)).thenReturn("30");
+      Throwable thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.getApiPullFreqSecs(fetchId));
+      assertTrue(thrownEx.getMessage().startsWith(API_PULL_FREQ + "." + fetchId + " must be >="));
+
+      when(mockProps.getProperty(API_PULL_FREQ + "." + fetchId)).thenReturn("120");
+      assertEquals(120L, testCp.getApiPullFreqSecs(fetchId));
+    }
 
     when(mockProps.getProperty(eq(API_PULL_FREQ), any(String.class))).thenReturn("30");
     Throwable thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.getApiPullFreqSecs());
@@ -85,6 +122,15 @@ class ConfigPropertiesTest {
   }
 
   @Test
+  void testApiPullThreads() {
+    when(mockProps.getProperty(eq(API_PULL_THREADS), any(String.class))).thenCallRealMethod(); // default
+    assertTrue(testCp.getApiPullThreads() >= 1);
+
+    when(mockProps.getProperty(eq(API_PULL_THREADS), any(String.class))).thenReturn("invalid");
+    assertThrows(NumberFormatException.class, () -> testCp.getApiPullThreads());
+  }
+
+  @Test
   void testDefaultLookbackSecs() {
     when(mockProps.getProperty(eq(DEFAULT_LOOKBACK), any(String.class))).thenCallRealMethod(); // default
     assertEquals(86400L, testCp.getDefaultLookbackSecs());
@@ -95,21 +141,21 @@ class ConfigPropertiesTest {
 
   @Test
   void testOutputCEFHeader() {
-    assertNull(testCp.getOutputCEFHeader()); // ok to be null
+    assertNull(testCp.uncached().getOutputCEFHeader()); // ok to be null
 
     String invalidHeader = "CEF:0|Nyansa|voyance-siem-syslog-agent|1.0|${cefSignatureId}|${cefName}|${cefSeverity}";
     when(mockProps.getProperty(OUTPUT_CEF_HEADER)).thenReturn(invalidHeader);
-    Throwable thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.getOutputCEFHeader());
+    Throwable thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.uncached().getOutputCEFHeader());
     assertTrue(thrownEx.getMessage().startsWith(OUTPUT_CEF_HEADER + " must conform to CEF format with 8 sections"));
 
     invalidHeader = "CEF:0|Nyansa|voyance-siem-syslog-agent|1.0|${cefSignatureId}|${cefName}|${cefSeverity}|${invalidVar}";
     when(mockProps.getProperty(OUTPUT_CEF_HEADER)).thenReturn(invalidHeader);
-    thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.getOutputCEFHeader());
+    thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.uncached().getOutputCEFHeader());
     assertTrue(thrownEx.getMessage().startsWith(OUTPUT_CEF_HEADER + " can only contain variables"));
 
     final String validHeader = "output.cef.header=CEF:0|Nyansa|voyance-siem-syslog-agent|1.0|${cefSignatureId}|${cefName}|${cefSeverity}|${cefExtension}";
     when(mockProps.getProperty(OUTPUT_CEF_HEADER)).thenReturn(validHeader);
-    assertEquals(validHeader, testCp.getOutputCEFHeader());
+    assertEquals(validHeader, testCp.uncached().getOutputCEFHeader());
   }
 
   @Test

@@ -9,9 +9,9 @@ package com.nyansa.siem.api.models;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,21 +20,24 @@ package com.nyansa.siem.api.models;
  * #L%
  */
 
-import java.util.List;
+public enum AggregatedWindow {
+  Last3Hours("last3h"),
+  Last24Hours("last24h"),
+  Last7Days("last7d"),
+  Last14Days("last14d");
 
-public class IoTOutlierList extends PaginatedResults<IoTOutlier> {
-  private List<IoTOutlier> ioTOutliers;
+  private String id;
 
-  public List<IoTOutlier> getIoTOutliers() {
-    return ioTOutliers;
+  AggregatedWindow(String id) {
+    this.id = id;
   }
 
-  public void setIoTOutliers(List<IoTOutlier> ioTOutliers) {
-    this.ioTOutliers = ioTOutliers;
+  public String getId() {
+    return id;
   }
 
   @Override
-  public List<IoTOutlier> getResults() {
-    return getIoTOutliers();
+  public String toString() {
+    return this.id;
   }
 }

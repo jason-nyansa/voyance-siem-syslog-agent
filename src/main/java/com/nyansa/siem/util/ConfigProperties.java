@@ -20,12 +20,16 @@ package com.nyansa.siem.util;
  * #L%
  */
 
+import com.nyansa.siem.VoyanceSiemSyslogAgent;
+import com.nyansa.siem.api.ApiPaginatedFetch;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -39,6 +43,7 @@ public class ConfigProperties {
 
   private Properties props;
   private String validatedCefHeader = null;
+  private List<ApiPaginatedFetch> validatedEnabledApis = null;
 
   public static synchronized ConfigProperties configProperties() {
     if (_instance == null) {
@@ -62,7 +67,9 @@ public class ConfigProperties {
   static final class PropertyNames {
     static final String API_URL = "voyance.dev.api.url";
     static final String API_TOKEN = "voyance.dev.api.token";
+    static final String API_FETCHES_ENABLED = "api.fetches.enabled";
     static final String API_PULL_FREQ = "api.pull.frequency.secs";
+    static final String API_PULL_THREADS = "api.pull.threads";
     static final String DEFAULT_LOOKBACK = "data.default.lookback.secs";
     static final String OUTPUT_CEF_HEADER = "output.cef.header";
     static final String OUTPUT_DATETIME_FORMAT = "output.datetime.format";
@@ -72,10 +79,16 @@ public class ConfigProperties {
   public void validateAll() {
     getApiUrl();
     getApiToken();
+    getApiFetchesEnabled();
     getApiPullFreqSecs();
+    getApiPullThreads();
     getDefaultLookbackSecs();
     getOutputCEFHeader();
     getOutputDatetimeFormat();
+    for (ApiPaginatedFetch api : VoyanceSiemSyslogAgent.AllAvailableApiFetches) {
+      getApiPullFreqSecs(api.fetchId());
+      getOutputFormat(api.fetchId());
+    }
   }
 
   public String getApiUrl() {
@@ -86,12 +99,55 @@ public class ConfigProperties {
     return requiredProperty(PropertyNames.API_TOKEN);
   }
 
+  public List<ApiPaginatedFetch> getApiFetchesEnabled() {
+    if (validatedEnabledApis != null) {
+      return validatedEnabledApis;
+    }
+    String[] fetchIds = requiredProperty(PropertyNames.API_FETCHES_ENABLED).split(",");
+
+    List<ApiPaginatedFetch> apisEnabled = new ArrayList<>();
+    for (String fetchId : fetchIds) {
+      boolean found = false;
+      for (ApiPaginatedFetch api : VoyanceSiemSyslogAgent.AllAvailableApiFetches) {
+        if (api.fetchId().equals(fetchId.trim())) {
+          apisEnabled.add(api);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        throw new IllegalArgumentException(PropertyNames.API_FETCHES_ENABLED + " contains invalid API fetch ID: " + fetchId);
+      }
+    }
+    validatedEnabledApis = apisEnabled;
+    return validatedEnabledApis;
+  }
+
   public long getApiPullFreqSecs() {
-    long freqSecs = Long.parseLong(props.getProperty(PropertyNames.API_PULL_FREQ, "60"));
+    return getApiPullFreqSecs(null);
+  }
+
+  public long getApiPullFreqSecs(final String fetchId) {
+    String freqSecsInStr = null;
+    String propName = null;
+    if (fetchId != null) {
+      propName = PropertyNames.API_PULL_FREQ + "." + fetchId;
+      freqSecsInStr = props.getProperty(propName);
+    }
+    if (freqSecsInStr == null) {
+      propName = PropertyNames.API_PULL_FREQ;
+      freqSecsInStr = props.getProperty(propName, "60");
+    }
+    long freqSecs = Long.parseLong(freqSecsInStr);
     if (freqSecs < 60) {
-      throw new IllegalArgumentException(PropertyNames.API_PULL_FREQ + " must be >= 60");
+      throw new IllegalArgumentException(propName + " must be >= 60");
     }
     return freqSecs;
+  }
+
+  public int getApiPullThreads() {
+    String defaultNumThreads = Integer.toString(Math.max(Runtime.getRuntime().availableProcessors() / 2, 1));
+    return Integer.parseInt(props.getProperty(PropertyNames.API_PULL_THREADS, defaultNumThreads));
   }
 
   public long getDefaultLookbackSecs() {
@@ -137,5 +193,11 @@ public class ConfigProperties {
       throw new IllegalArgumentException(propName + " must present in config.properties and not be blank");
     }
     return propValue;
+  }
+
+  ConfigProperties uncached() {
+    validatedCefHeader = null;
+    validatedEnabledApis = null;
+    return this;
   }
 }
