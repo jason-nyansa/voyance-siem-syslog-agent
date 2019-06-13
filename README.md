@@ -1,4 +1,5 @@
-# Voyance SIEM Syslog Agent
+# Voyance SIEM Syslog Agent [![Build Status](https://travis-ci.com/Nyansa/voyance-siem-syslog-agent.png?branch=master)](https://travis-ci.com/Nyansa/voyance-siem-syslog-agent)
+
 
 Integration of Nyansa Voyance's [GraphQL API v2](https://nyansa.github.io/api-v2/) to SIEM through
 Syslog. This implementation can be used as a reference and starting point to create your own custom
