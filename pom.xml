@@ -87,12 +87,13 @@
               <mainClass>com.nyansa.siem.VoyanceSiemSyslogAgent</mainClass>
             </manifest>
             <manifestEntries>
-              <Class-Path>../config/</Class-Path>
+              <Class-Path>../config/ ../queries/</Class-Path>
             </manifestEntries>
           </archive>
           <excludes>
             <exclude>config.properties</exclude>
             <exclude>log4j2.xml</exclude>
+            <exclude>*.graphql</exclude>
           </excludes>
         </configuration>
       </plugin>

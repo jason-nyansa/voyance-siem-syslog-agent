@@ -1,0 +1,25 @@
+query IoTOutliers($page: Int, $fromDate: Date) {
+  iotOutlierList(
+    page: $page,
+    pageSize: 500,
+    fromDate: $fromDate,
+    sortBy: "time",
+    sortOrder: ASC
+  ) {
+    ioTOutliers {
+      uuid
+      model
+      time
+      outlierType
+      outlierCategory
+      outlierReason
+      outlierValue
+      locationNames
+      bcScore
+    }
+    page
+    pageSize
+    pageCount
+    totalCount
+  }
+}

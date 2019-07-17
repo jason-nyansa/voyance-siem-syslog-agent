@@ -35,35 +35,6 @@ public class IoTOutlierListFetch extends ApiPaginatedFetch<IoTOutlier, IoTOutlie
   }
 
   @Override
-  protected String apiQuery(int pageNum, long fromTimestamp) {
-    return String.format("{"
-        + "  iotOutlierList("
-        + "    page: %d,"
-        + "    pageSize: 500,"
-        + "    fromDate: %d,"
-        + "    sortBy: \"time\","
-        + "    sortOrder: ASC"
-        + "  ) {"
-        + "    ioTOutliers {"
-        + "      uuid"
-        + "      model"
-        + "      time"
-        + "      outlierType"
-        + "      outlierCategory"
-        + "      outlierReason"
-        + "      outlierValue"
-        + "      locationNames"
-        + "      bcScore"
-        + "    }"
-        + "    page"
-        + "    pageSize"
-        + "    pageCount"
-        + "    totalCount"
-        + "  }"
-        + "}", pageNum, fromTimestamp);
-  }
-
-  @Override
   public String defaultLogOutputFormat() {
     return "uuid=${uuid} model=${model} time=${time} outlierType=${outlierType} outlierCategory=${outlierCategory} outlierReason=${outlierReason} outlierValue=${outlierValue}";
   }

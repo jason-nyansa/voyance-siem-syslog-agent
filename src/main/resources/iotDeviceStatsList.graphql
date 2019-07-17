@@ -1,0 +1,38 @@
+query IoTDeviceStats($page: Int, $aggWindow: AggregationWindow) {
+  iotDeviceStatsList(
+    page: $page,
+    pageSize: 250,
+    aggWindow: $aggWindow,
+    sortBy: "uuid",
+    sortOrder: ASC
+  ) {
+    iotDeviceStats {
+      uuid
+      model
+      deviceClass
+      isCritical
+      aggWindow
+      aggUpdated
+      totalBytes
+      rxBytes
+      txBytes
+      avgBytesPerSec
+      avgRxBytesPerSec
+      avgTxBytesPerSec
+      totalTimeSecs
+      numHosts
+      numInternalHosts
+      numExternalHosts
+      essids
+      vlans
+      suspiciousHosts
+      highRiskHosts
+      hostsGeo
+      locationNames
+    }
+    page
+    pageSize
+    pageCount
+    totalCount
+  }
+}

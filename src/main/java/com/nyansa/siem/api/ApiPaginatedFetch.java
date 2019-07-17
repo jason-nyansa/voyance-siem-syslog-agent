@@ -38,8 +38,13 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,13 +79,42 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
   public abstract String apiEndpoint();
 
   /**
-   * Override in subclass to provide the GraphQL API query string given certain parameters.
+   * Override in subclass to provide the GraphQL API query string.
+   * By default the query string is read from files under /queries/${apiEndpoint}.graphql .
    *
-   * @param pageNum       the page number to include in the query if necessary
-   * @param fromTimestamp the from timestamp (ms since epoch) to include in the query if necessary
    * @return the API query string
    */
-  protected abstract String apiQuery(int pageNum, long fromTimestamp);
+  public String apiQuery() {
+    final String queryFileName = apiEndpoint() + ".graphql";
+    final StringBuilder queryStr = new StringBuilder();
+
+    try {
+      final BufferedReader reader = new BufferedReader(new InputStreamReader(
+          ApiPaginatedFetch.class.getClassLoader().getResourceAsStream(queryFileName)));
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        queryStr.append(line);
+      }
+      return queryStr.toString();
+    } catch (Exception e) {
+      logger.error("Caught exception: {}", ExceptionUtils.getStackTrace(e));
+      throw new IllegalArgumentException("Error reading API query string under /queries/" + queryFileName);
+    }
+  }
+
+  /**
+   * Override in subclass to provide additional GraphQL API query variables.
+   * By default $page: Int, $fromDate: Date are supplied.
+   *
+   * @return the API query variables as key value pairs
+   */
+  public Map<String, Object> apiVariables(final int page, final Date fromDate) {
+    Map<String, Object> queryVars = new HashMap<>();
+    queryVars.put("page", page);
+    queryVars.put("fromDate", toDateTimeString(fromDate));
+    return queryVars;
+  }
 
   /**
    * Override in subclass to provide the default log output format string of this API fetch.
@@ -170,8 +204,10 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
   }
 
   T fetchPage(final HttpClient httpClient, final int pageNum, final Timestamp fromTs) {
+    final Date fromDate = new Date(fromTs.getTime() + 1);
     final Map<String, Object> apiQuery = new HashMap<>();
-    apiQuery.put("query", apiQuery(pageNum, fromTs.getTime() + 1));
+    apiQuery.put("query", apiQuery());
+    apiQuery.put("variables", apiVariables(pageNum, fromDate));
     final String apiQueryJson = jsonUtil().dump(apiQuery);
     assert(apiQueryJson != null);
 
@@ -183,7 +219,7 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
     postReq.setEntity(new StringEntity(apiQueryJson, ContentType.APPLICATION_JSON));
 
     try {
-      logger.debug("Fetching API data for {}, page {}, fromTime {} ...", fetchId(), pageNum, fromTs);
+      logger.debug("Fetching API data for {}, query {} ...", fetchId(), apiQueryJson);
 
       final HttpResponse resp = httpClient.execute(postReq);
       final int httpStatus = resp.getStatusLine().getStatusCode();
@@ -225,5 +261,11 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
 
   private boolean isTimestampStale(Timestamp ts) {
     return (System.currentTimeMillis() - ts.getTime()) > (14 * 24 * 60 * 60 * 1000); // older than two weeks
+  }
+
+  private DateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
+  private String toDateTimeString(final Date date) {
+    return isoDateFormat.format(date);
   }
 }

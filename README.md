@@ -111,7 +111,9 @@ file, you will need to edit these properties to point to your Syslog host/port u
 </Properties>
 ```
 
-There are other customizations you can make and they are documented in either config files.
+There are other customizations you can make such as pull frequency and output format and they are
+documented in either config files. You can also modify the `queries/*.graphql` files to tune the
+GraphQL query you want to make against each endpoint.
 
 ### Launching
 Once the configurations are done, launch the agent with the provided `VoyanceSiemSyslogAgent.sh`
@@ -162,6 +164,7 @@ to start.
 marshalling.
 2. Implement an "API fetch" class by extending `ApiPaginatedFetch`. There are a number of methods
 that need to be overridden and you can look into how `IoTOutlierListFetch` is done for an example.
+Each API fetch will need to have a corresponding `${apiEndpoint}.graphql` file containing the query.
 The API data will be fetched page by page and marshalled into the POJO classes. API elements will
 be emitted to the output adapter (currently Syslog).
 3. Add the new API fetch handle to `VoyanceSiemSyslogAgent.AllAvailableApiFetches`, now users can

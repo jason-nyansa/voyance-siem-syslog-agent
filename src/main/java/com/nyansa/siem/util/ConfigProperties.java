@@ -88,6 +88,7 @@ public class ConfigProperties {
     for (ApiPaginatedFetch api : VoyanceSiemSyslogAgent.AllAvailableApiFetches) {
       getApiPullFreqSecs(api.fetchId());
       getOutputFormat(api.fetchId());
+      api.apiQuery();
     }
   }
 

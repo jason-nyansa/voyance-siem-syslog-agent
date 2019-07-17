@@ -24,6 +24,9 @@ import com.nyansa.siem.api.models.AggregatedWindow;
 import com.nyansa.siem.api.models.IoTDeviceStats;
 import com.nyansa.siem.api.models.IoTDeviceStatsList;
 
+import java.util.Date;
+import java.util.Map;
+
 public class IoTDeviceStatsListFetch extends ApiPaginatedFetch<IoTDeviceStats, IoTDeviceStatsList> {
   private AggregatedWindow aggWindow;
 
@@ -42,45 +45,10 @@ public class IoTDeviceStatsListFetch extends ApiPaginatedFetch<IoTDeviceStats, I
   }
 
   @Override
-  protected String apiQuery(int pageNum, long fromTimestamp) {
-    return String.format("{"
-        + "  iotDeviceStatsList("
-        + "    page: %d"
-        + "    pageSize: 250"
-        + "    aggWindow: %s"
-        + "    sortBy: \"uuid\""
-        + "    sortOrder: ASC"
-        + "  ) {"
-        + "    iotDeviceStats {"
-        + "      uuid"
-        + "      model"
-        + "      deviceClass"
-        + "      isCritical"
-        + "      aggWindow"
-        + "      aggUpdated"
-        + "      totalBytes"
-        + "      rxBytes"
-        + "      txBytes"
-        + "      avgBytesPerSec"
-        + "      avgRxBytesPerSec"
-        + "      avgTxBytesPerSec"
-        + "      totalTimeSecs"
-        + "      numHosts"
-        + "      numInternalHosts"
-        + "      numExternalHosts"
-        + "      essids"
-        + "      vlans"
-        + "      suspiciousHosts"
-        + "      highRiskHosts"
-        + "      hostsGeo"
-        + "      locationNames"
-        + "    }"
-        + "    page"
-        + "    pageSize"
-        + "    pageCount"
-        + "    totalCount"
-        + "  }"
-        + "}", pageNum, aggWindow.getId());
+  public Map<String, Object> apiVariables(final int page, final Date fromDate) {
+    Map<String, Object> queryVars = super.apiVariables(page, fromDate);
+    queryVars.put("aggWindow", aggWindow.getId());
+    return queryVars;
   }
 
   @Override
