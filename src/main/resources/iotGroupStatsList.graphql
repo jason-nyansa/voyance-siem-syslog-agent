@@ -1,0 +1,38 @@
+query IoTGroupStats($page: Int, $aggWindow: AggregationWindow) {
+  iotGroupStatsList(
+    page: $page,
+    pageSize: 250,
+    aggWindow: $aggWindow,
+    sortBy: "model",
+    sortOrder: ASC
+  ) {
+    iotGroupStats {
+      model
+      deviceClass
+      isCritical
+      aggWindow
+      aggUpdated
+      numDevices
+      totalBytes
+      rxBytes
+      txBytes
+      avgBytesPerSec
+      avgRxBytesPerSec
+      avgTxBytesPerSec
+      totalTimeSecs
+      numHosts
+      numInternalHosts
+      numExternalHosts
+      numInternalDevices
+      numExternalDevices
+      essids
+      vlans
+      protocols
+      locationNames
+    }
+    page
+    pageSize
+    pageCount
+    totalCount
+  }
+}

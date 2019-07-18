@@ -63,7 +63,7 @@ public class IoTDeviceStatsListFetch extends ApiPaginatedFetch<IoTDeviceStats, I
 
   @Override
   public String getSignatureId(IoTDeviceStats elem) {
-    return "device_iot_stats_" + elem.getAggWindow() ;
+    return "device_iot_stats_" + elem.getAggWindow();
   }
 
   @Override
