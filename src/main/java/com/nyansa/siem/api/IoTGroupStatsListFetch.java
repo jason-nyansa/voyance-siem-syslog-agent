@@ -72,6 +72,6 @@ public class IoTGroupStatsListFetch extends ApiPaginatedFetch<IoTGroupStats, IoT
 
   @Override
   public String getSeverity(IoTGroupStats elem) {
-    return "5"; // these stats are informational only;
+    return "5"; // these stats are informational only
   }
 }

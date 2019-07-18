@@ -1,0 +1,61 @@
+query DeviceInventory($page: Int, $fromDate: Date) {
+  deviceList(
+    page: $page,
+    pageSize: 150,
+    fromDate: $fromDate,
+    sortBy: "uuid",
+    sortOrder: ASC
+  ) {
+    devices {
+      uuid
+      macAddr
+      ipAddress
+      hostname
+      userName
+      description
+      isActive
+      isWireless
+      apMacAddr
+      apName
+      apGroup
+      rfBand
+      radioChannel
+      chWidth
+      protocol
+      essid
+      bssid
+      network
+      noiseOnAp
+      isBandStrOnAp
+      isDfsOnAp
+      apModel
+      snrDb
+      radioTechType
+      is5ghzCapable
+      isDfsCapable
+      isOnDualBandAp
+      isLbOnAp
+      apDwellTimeMs
+      controllerIp
+      deviceTypeDetails {
+        osAndVersion
+        deviceClass
+        model
+        browser
+        userAgent
+      }
+      isIotDevice
+      isCritical
+      lastUpdated
+      createdAt
+      wannaCryLastTime
+      radioTechTypeDescription
+      radioTechTypeChannelWidth
+      locationNames
+    }
+    page
+    pageSize
+    pageCount
+    totalCount
+  }
+}

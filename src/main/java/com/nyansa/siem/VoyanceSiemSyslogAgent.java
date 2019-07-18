@@ -21,6 +21,7 @@ package com.nyansa.siem;
  */
 
 import com.nyansa.siem.api.ApiPaginatedFetch;
+import com.nyansa.siem.api.DeviceListFetch;
 import com.nyansa.siem.api.IoTDeviceStatsListFetch;
 import com.nyansa.siem.api.IoTGroupStatsListFetch;
 import com.nyansa.siem.api.IoTOutlierListFetch;
@@ -64,7 +65,8 @@ public class VoyanceSiemSyslogAgent {
       new IoTGroupStatsListFetch(AggregatedWindow.Last3Hours),
       new IoTGroupStatsListFetch(AggregatedWindow.Last24Hours),
       new IoTGroupStatsListFetch(AggregatedWindow.Last7Days),
-      new IoTGroupStatsListFetch(AggregatedWindow.Last14Days)
+      new IoTGroupStatsListFetch(AggregatedWindow.Last14Days),
+      new DeviceListFetch()
   );
 
   private VoyanceSiemSyslogAgent() throws SQLException {
