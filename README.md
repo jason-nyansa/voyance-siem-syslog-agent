@@ -17,7 +17,7 @@ integration.
 Before building, checkout a tagged release version, e.g.
 
 ```bash
-git checkout tags/v0.9.1 -b release-0.9.1
+git checkout tags/v0.9.2 -b release-0.9.2
 ```
 
 To build a package from source, in the project's base directory run:
@@ -30,7 +30,7 @@ This should generate two packages under `target` with the name `VoyanceSiemSyslo
 Pick your preferred file format and untar/unzip it to any directory you like, e.g.
 
 ```bash
-tar xf VoyanceSiemSyslogAgent-0.9.1-package.tar.gz
+tar xf VoyanceSiemSyslogAgent-0.9.2-package.tar.gz
 ```
 
 Inside the unzipped directory you should see a script `VoyanceSiemSyslogAgent.sh`, directories
@@ -119,6 +119,10 @@ file, you will need to edit these properties to point to your Syslog host/port u
 There are other customizations you can make such as pull frequency and output format and they are
 documented in either config files. You can also modify the `queries/*.graphql` files to tune the
 GraphQL query you want to make against each endpoint.
+
+The latest config file templates are available in this Github repo:
+- [config.properties](https://github.com/Nyansa/voyance-siem-syslog-agent/blob/0.9/src/main/resources/config.properties)
+- [log4j2.xml](https://github.com/Nyansa/voyance-siem-syslog-agent/blob/0.9/src/main/resources/log4j2.xml)
 
 ### Launching
 Once the configurations are done, launch the agent with the provided `VoyanceSiemSyslogAgent.sh`
