@@ -1,0 +1,23 @@
+query Application($page: Int, $aggWindow: AggregationWindow) {
+  applicationList(
+    page: $page,
+    pageSize: 250,
+    aggWindow: $aggWindow,
+    sortBy: "totalBytes",
+    sortOrder: ASC
+  ) {
+    applications {
+    appName
+    userCount
+    totalBytes
+    rxBytes
+    txBytes
+    aggWindow
+    aggUpdated
+    }
+    page
+    pageSize
+    pageCount
+    totalCount
+  }
+}

@@ -30,3 +30,6 @@ hs_err_pid*
 # Dev environment
 .idea/
 *.iml
+
+# Desktop Services Store files
+.DS_Store

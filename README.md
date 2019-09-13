@@ -83,6 +83,8 @@ voyance.dev.api.token=
 #               iotGroupStatsList_last7d
 #               iotGroupStatsList_last14d
 #               deviceList_updated
+#               applicationList_last3h
+#               applicationList_last24h
 #
 # example:      iotOutlierList_all,iotDeviceStatsList_last24h
 # required:     yes
