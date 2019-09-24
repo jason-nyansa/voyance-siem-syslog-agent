@@ -25,6 +25,7 @@ import com.nyansa.siem.api.models.IoTOutlier;
 import com.nyansa.siem.api.models.IoTOutlierList;
 import com.nyansa.siem.util.AbstractDBTest;
 
+import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,6 +57,8 @@ class ApiPaginatedFetchTest extends AbstractDBTest {
 
   private IoTOutlier elem;
 
+  private final HttpHost mockHttpProxyHost = null;
+
   @BeforeEach
   void setup() {
     MockitoAnnotations.initMocks(this);
@@ -82,7 +85,7 @@ class ApiPaginatedFetchTest extends AbstractDBTest {
     doReturn(makePage(3, 3, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(3), fromTsArg.capture());
     doThrow(new IllegalArgumentException("don't expect page number to hit 4")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(4), fromTsArg.capture());
 
-    int processedCount = testApiFetch.fetchLatest(agentDb, mockOutputAdapter);
+    int processedCount = testApiFetch.fetchLatest(agentDb, mockOutputAdapter, mockHttpProxyHost);
 
     assertEquals(totalCount, processedCount);
     assertEquals(t0, fromTsArg.getValue());
@@ -103,7 +106,7 @@ class ApiPaginatedFetchTest extends AbstractDBTest {
     doReturn(makePage(1, 19, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(1), any());
     doThrow(new IllegalArgumentException("don't expect page number to hit 2")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(2), any());
 
-    int processedCount = testApiFetch.fetchLatest(agentDb, mockOutputAdapter);
+    int processedCount = testApiFetch.fetchLatest(agentDb, mockOutputAdapter, mockHttpProxyHost);
     assertEquals(totalCount, processedCount);
   }
 

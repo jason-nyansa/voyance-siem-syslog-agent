@@ -25,6 +25,7 @@ import com.nyansa.siem.api.adapters.ApiOutputAdapter;
 import com.nyansa.siem.util.AgentDB;
 import com.nyansa.siem.util.ConfigProperties;
 
+import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,6 +70,8 @@ class VoyanceSiemSyslogAgentTest {
   @Spy
   private VoyanceSiemSyslogAgent testAgent;
 
+  private final HttpHost mockHttpProxyHost = null;
+
   @BeforeEach
   void setup() throws SQLException {
     mockDb = mock(AgentDB.class);
@@ -97,7 +100,7 @@ class VoyanceSiemSyslogAgentTest {
     final Timestamp t0 = new Timestamp(System.currentTimeMillis());
     when(mockDb.getLastReadTs(api2FetchId)).thenReturn(t0); // API 2 will have a initial delay of 3 seconds
 
-    when(mockApi1.fetchLatest(mockDb, mockOutputAdapter)).thenAnswer((Answer) invocation -> {
+    when(mockApi1.fetchLatest(mockDb, mockOutputAdapter, mockHttpProxyHost)).thenAnswer((Answer) invocation -> {
       long before = cdl.getCount();
       cdl.countDown();
       long after = cdl.getCount();
@@ -105,7 +108,7 @@ class VoyanceSiemSyslogAgentTest {
       return (int)(before - after);
     });
 
-    when(mockApi2.fetchLatest(mockDb, mockOutputAdapter)).thenAnswer((Answer) invocation -> {
+    when(mockApi2.fetchLatest(mockDb, mockOutputAdapter, mockHttpProxyHost)).thenAnswer((Answer) invocation -> {
       long before = cdl.getCount();
       for (int i = 0; i < initCount / 2; ++i) {
         cdl.countDown();

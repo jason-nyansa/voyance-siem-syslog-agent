@@ -33,6 +33,7 @@ import com.nyansa.siem.util.AgentDB;
 import com.nyansa.siem.util.ConfigProperties;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,6 +57,7 @@ public class VoyanceSiemSyslogAgent {
   private ConfigProperties configProps;
   private ScheduledExecutorService executorService;
   private List<ApiPaginatedFetch> apiFetches;
+  private HttpHost httpProxyHost;
 
   public static final List<ApiPaginatedFetch> AllAvailableApiFetches = Arrays.asList(
       new IoTOutlierListFetch(),
@@ -91,6 +93,7 @@ public class VoyanceSiemSyslogAgent {
     configProps = inConfigProps;
     executorService = Executors.newScheduledThreadPool(configProps.getApiPullThreads());
     apiFetches = configProps.getApiFetchesEnabled();
+    httpProxyHost = configProps.getHttpProxy();
   }
 
   public static void main(String[] args) throws SQLException {
@@ -162,7 +165,7 @@ public class VoyanceSiemSyslogAgent {
 
   private void fetchApi(final ApiPaginatedFetch api) {
     logger.info("Fetching {} ...", api.fetchId());
-    int sentCount = api.fetchLatest(agentDb, outputAdapter);
+    int sentCount = api.fetchLatest(agentDb, outputAdapter, httpProxyHost);
     logger.info("{} {} lines sent", api.fetchId(), sentCount);
   }
 }

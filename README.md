@@ -40,8 +40,9 @@ Inside the unzipped directory you should see a script `VoyanceSiemSyslogAgent.sh
 Before you can launch the agent there are two configuration files you will need to edit:
 
 ##### `config/config.properties`
-This is the agent's configuration file, you will need to provide your Voyance GraphQL v2 URL and
-access token. In addition, you can configure which API data fetches you want to enable.
+This is the agent's configuration file, you will need to provide your Voyance GraphQL API v2 URL
+and access token. You also need to configure the HTTP proxy if one is required to make connections
+to the API. In addition, you can configure which API data fetches you want to enable.
 
 ```properties
 # ======================================================================
@@ -65,6 +66,17 @@ voyance.dev.api.url=
 # required:     yes
 # ======================================================================
 voyance.dev.api.token=
+
+# ======================================================================
+# HTTP Proxy
+#
+# description:  If a HTTP proxy is required for connections made to the
+#               API v2 URL, its hostname and port.
+#
+# example:      proxy.yourcompany.com:3128
+# required:     no
+# ======================================================================
+http.proxy=
 
 # ======================================================================
 # API Data Fetches Enabled

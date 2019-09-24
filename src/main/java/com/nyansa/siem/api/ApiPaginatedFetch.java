@@ -27,13 +27,15 @@ import com.nyansa.siem.util.AgentDB;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -169,8 +171,13 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
    * @param outputAdapter the adapter instance to receive the API elements output
    * @return total number of API elements processed successfully
    */
-  public int fetchLatest(final AgentDB db, final ApiOutputAdapter outputAdapter) {
-    final CloseableHttpClient httpClient = HttpClients.createDefault();
+  public int fetchLatest(final AgentDB db, final ApiOutputAdapter outputAdapter, final HttpHost httpProxyHost) {
+    final HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+    httpClientBuilder.setRedirectStrategy(new LaxRedirectStrategy()); // follow redirects for POST requests
+    if (httpProxyHost != null) {
+      httpClientBuilder.setProxy(httpProxyHost);
+    }
+    final CloseableHttpClient httpClient = httpClientBuilder.build();
     int curPageNum = 1;
     int totalCount = 0;
 

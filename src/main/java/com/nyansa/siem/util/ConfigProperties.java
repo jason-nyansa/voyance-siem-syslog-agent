@@ -25,6 +25,7 @@ import com.nyansa.siem.api.ApiPaginatedFetch;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,6 +68,7 @@ public class ConfigProperties {
   static final class PropertyNames {
     static final String API_URL = "voyance.dev.api.url";
     static final String API_TOKEN = "voyance.dev.api.token";
+    static final String HTTP_PROXY = "http.proxy";
     static final String API_FETCHES_ENABLED = "api.fetches.enabled";
     static final String API_PULL_FREQ = "api.pull.frequency.secs";
     static final String API_PULL_THREADS = "api.pull.threads";
@@ -79,6 +81,7 @@ public class ConfigProperties {
   public void validateAll() {
     getApiUrl();
     getApiToken();
+    getHttpProxy();
     getApiFetchesEnabled();
     getApiPullFreqSecs();
     getApiPullThreads();
@@ -98,6 +101,27 @@ public class ConfigProperties {
 
   public String getApiToken() {
     return requiredProperty(PropertyNames.API_TOKEN);
+  }
+
+  public HttpHost getHttpProxy() {
+    final String proxyStr = props.getProperty(PropertyNames.HTTP_PROXY);
+    if (StringUtils.isNotBlank(proxyStr)) {
+      final String[] proxyHostPort = proxyStr.split(":");
+      if (proxyHostPort.length > 2) {
+        throw new IllegalArgumentException(PropertyNames.HTTP_PROXY + " must be in format hostname:port");
+      } else if (proxyHostPort.length == 2) {
+        int port;
+        try {
+          port = Integer.parseInt(proxyHostPort[1]);
+        } catch (NumberFormatException e) {
+          throw new IllegalArgumentException(PropertyNames.HTTP_PROXY + " must be in format hostname:port, port is not a valid number");
+        }
+        return new HttpHost(proxyHostPort[0], port);
+      } else {
+        return new HttpHost(proxyHostPort[0]);
+      }
+    }
+    return null;
   }
 
   public List<ApiPaginatedFetch> getApiFetchesEnabled() {

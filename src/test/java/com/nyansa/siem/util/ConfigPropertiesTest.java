@@ -20,6 +20,7 @@ package com.nyansa.siem.util;
  * #L%
  */
 
+import org.apache.http.HttpHost;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -66,6 +67,32 @@ class ConfigPropertiesTest {
     final String token = "Foo_baR";
     when(mockProps.getProperty(API_TOKEN)).thenReturn(token);
     assertEquals(token, testCp.getApiToken());
+  }
+
+  @Test
+  void testHttpProxy() {
+    when(mockProps.getProperty(HTTP_PROXY)).thenReturn("");
+    assertNull(testCp.getHttpProxy());
+
+    when(mockProps.getProperty(HTTP_PROXY)).thenReturn("10.80.1.1:3128");
+    HttpHost httpProxyHost = testCp.getHttpProxy();
+    assertNotNull(httpProxyHost);
+    assertEquals("10.80.1.1", httpProxyHost.getHostName());
+    assertEquals(3128, httpProxyHost.getPort());
+
+    when(mockProps.getProperty(HTTP_PROXY)).thenReturn("10.80.1.1");
+    httpProxyHost = testCp.getHttpProxy();
+    assertNotNull(httpProxyHost);
+    assertEquals("10.80.1.1", httpProxyHost.getHostName());
+    assertEquals(-1, httpProxyHost.getPort());
+
+    when(mockProps.getProperty(HTTP_PROXY)).thenReturn("10.80.1.1:3128:80");
+    Throwable thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.getHttpProxy());
+    assertEquals(HTTP_PROXY + " must be in format hostname:port", thrownEx.getMessage());
+
+    when(mockProps.getProperty(HTTP_PROXY)).thenReturn("10.80.1.1:foobar");
+    thrownEx = assertThrows(IllegalArgumentException.class, () -> testCp.getHttpProxy());
+    assertTrue(thrownEx.getMessage().endsWith("port is not a valid number"));
   }
 
   @Test
