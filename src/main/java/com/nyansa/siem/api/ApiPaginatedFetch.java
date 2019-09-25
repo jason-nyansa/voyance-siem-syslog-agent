@@ -81,18 +81,27 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
   public abstract String apiEndpoint();
 
   /**
+   * Override in subclass to specify the GraphQL query file. Default is ${apiEndpoint}.graphql
+   * E.g. "iotOutlierList.graphql"
+   *
+   * @return the GraphQL query file name for this fetch
+   */
+  public String graphqlQueryFileName() {
+    return apiEndpoint() + ".graphql";
+  }
+
+  /**
    * Override in subclass to provide the GraphQL API query string.
    * By default the query string is read from files under /queries/${apiEndpoint}.graphql .
    *
    * @return the API query string
    */
   public String apiQuery() {
-    final String queryFileName = apiEndpoint() + ".graphql";
     final StringBuilder queryStr = new StringBuilder();
 
     try {
       final BufferedReader reader = new BufferedReader(new InputStreamReader(
-          ApiPaginatedFetch.class.getClassLoader().getResourceAsStream(queryFileName)));
+          ApiPaginatedFetch.class.getClassLoader().getResourceAsStream(graphqlQueryFileName())));
 
       String line;
       while ((line = reader.readLine()) != null) {
@@ -101,7 +110,7 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
       return queryStr.toString();
     } catch (Exception e) {
       logger.error("Caught exception: {}", ExceptionUtils.getStackTrace(e));
-      throw new IllegalArgumentException("Error reading API query string under /queries/" + queryFileName);
+      throw new IllegalArgumentException("Error reading API query string under /queries/" + graphqlQueryFileName());
     }
   }
 

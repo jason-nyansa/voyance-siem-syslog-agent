@@ -65,6 +65,7 @@ public class Device {
   private String radioTechTypeDescription;
   private String radioTechTypeChannelWidth;
   private List<String> locationNames;
+  private List<DeviceEvent> attributeChanges;
 
   public String getUuid() {
     return uuid;
@@ -386,6 +387,14 @@ public class Device {
 
   public void setLocationNames(List<String> locationNames) {
     this.locationNames = locationNames;
+  }
+
+  public List<DeviceEvent> getAttributeChanges() {
+    return attributeChanges;
+  }
+
+  public void setAttributeChanges(List<DeviceEvent> attributeChanges) {
+    this.attributeChanges = attributeChanges;
   }
 }
 

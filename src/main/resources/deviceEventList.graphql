@@ -1,0 +1,27 @@
+query DeviceList($page: Int, $fromDate: Date, $eventFromDate: Date) {
+  deviceList(
+    page: $page,
+    pageSize: 100,
+    fromDate: $fromDate,
+    sortBy: "uuid",
+    sortOrder: ASC
+  ) {
+    devices {
+      uuid
+      macAddr
+      ipAddress
+      description
+      attributeChanges(fromDate: $eventFromDate, sortOrder: ASC) {
+        sampleTime
+        attribute
+        oldValue
+        newValue
+      }
+    }
+    page
+    pageSize
+    pageCount
+    totalCount
+  }
+}
+
