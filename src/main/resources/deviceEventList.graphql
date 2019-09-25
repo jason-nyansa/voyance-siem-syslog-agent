@@ -1,4 +1,4 @@
-query DeviceList($page: Int, $fromDate: Date, $eventFromDate: Date) {
+query DeviceEventList($page: Int, $fromDate: Date, $eventFromDate: Date) {
   deviceList(
     page: $page,
     pageSize: 100,
