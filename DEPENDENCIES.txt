@@ -1,14 +1,18 @@
 
-Lists of 12 third-party dependencies.
-     (Apache License, Version 2.0) Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.9.0 - http://github.com/FasterXML/jackson)
-     (Apache License, Version 2.0) Jackson-core (com.fasterxml.jackson.core:jackson-core:2.9.9 - https://github.com/FasterXML/jackson-core)
-     (Apache License, Version 2.0) jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.9.9 - http://github.com/FasterXML/jackson)
+Lists of 16 third-party dependencies.
+     (Apache License, Version 2.0) Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.10.0.pr1 - http://github.com/FasterXML/jackson)
+     (Apache License, Version 2.0) Jackson-core (com.fasterxml.jackson.core:jackson-core:2.10.0.pr1 - https://github.com/FasterXML/jackson-core)
+     (Apache License, Version 2.0) jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.10.0.pr1 - http://github.com/FasterXML/jackson)
+     (New BSD license) Protocol Buffer Java API (com.google.protobuf:protobuf-java:2.6.1 - https://developers.google.com/protocol-buffers/)
      (MPL 2.0 or EPL 1.0) H2 Database Engine (com.h2database:h2:1.4.197 - http://www.h2database.com)
+     (Unknown license) JSON API Java Library (com.nyansa:java-apis-v1:0.0.1-SNAPSHOT - no url defined)
      (Apache License, Version 2.0) Apache Commons Codec (commons-codec:commons-codec:1.11 - http://commons.apache.org/proper/commons-codec/)
      (Apache License, Version 2.0) Apache Commons Logging (commons-logging:commons-logging:1.2 - http://commons.apache.org/proper/commons-logging/)
+     (The BSD 2-Clause License) eu.neilalexander:jnacl (eu.neilalexander:jnacl:1.0.0 - https://github.com/neilalexander/jnacl)
      (Apache License, Version 2.0) Apache Commons Lang (org.apache.commons:commons-lang3:3.8.1 - http://commons.apache.org/proper/commons-lang/)
      (Apache License, Version 2.0) Apache Commons Text (org.apache.commons:commons-text:1.6 - http://commons.apache.org/proper/commons-text)
      (Apache License, Version 2.0) Apache HttpClient (org.apache.httpcomponents:httpclient:4.5.8 - http://hc.apache.org/httpcomponents-client)
      (Apache License, Version 2.0) Apache HttpCore (org.apache.httpcomponents:httpcore:4.4.11 - http://hc.apache.org/httpcomponents-core-ga)
      (Apache License, Version 2.0) Apache Log4j API (org.apache.logging.log4j:log4j-api:2.11.2 - https://logging.apache.org/log4j/2.x/log4j-api/)
      (Apache License, Version 2.0) Apache Log4j Core (org.apache.logging.log4j:log4j-core:2.11.2 - https://logging.apache.org/log4j/2.x/log4j-core/)
+     (Mozilla Public License version 2.0) JeroMQ (org.zeromq:jeromq:0.5.1 - https://github.com/zeromq/jeromq)

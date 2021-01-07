@@ -20,15 +20,10 @@ package com.nyansa.siem;
  * #L%
  */
 
-import com.nyansa.siem.api.ApiPaginatedFetch;
-import com.nyansa.siem.api.ApplicationListFetch;
-import com.nyansa.siem.api.DeviceEventListFetch;
-import com.nyansa.siem.api.DeviceListFetch;
-import com.nyansa.siem.api.IoTDeviceStatsListFetch;
-import com.nyansa.siem.api.IoTGroupStatsListFetch;
-import com.nyansa.siem.api.IoTOutlierListFetch;
+import com.nyansa.siem.api.*;
 import com.nyansa.siem.api.adapters.ApiOutputAdapter;
 import com.nyansa.siem.api.adapters.ApiSyslogAdapter;
+import com.nyansa.siem.api.adapters.ApiZmqJsonAdapter;
 import com.nyansa.siem.api.models.AggregatedWindow;
 import com.nyansa.siem.util.AgentDB;
 import com.nyansa.siem.util.ConfigProperties;
@@ -73,11 +68,16 @@ public class VoyanceSiemSyslogAgent {
       new DeviceListFetch(),
       new ApplicationListFetch(AggregatedWindow.Last3Hours),
       new ApplicationListFetch(AggregatedWindow.Last24Hours),
-      new DeviceEventListFetch()
+      new DeviceEventListFetch(),
+      new VcoEnterpriseEventFetch()
   );
 
   private VoyanceSiemSyslogAgent() throws SQLException {
     this(null, null, null);
+  }
+
+  private VoyanceSiemSyslogAgent(ApiOutputAdapter inOutputAdapter) throws SQLException {
+    this(null, inOutputAdapter, null);
   }
 
   VoyanceSiemSyslogAgent(AgentDB inAgentDb, ApiOutputAdapter inOutputAdapter, ConfigProperties inConfigProps) throws SQLException {
@@ -116,7 +116,8 @@ public class VoyanceSiemSyslogAgent {
     }
 
     configProperties().validateAll();
-    VoyanceSiemSyslogAgent agent = new VoyanceSiemSyslogAgent();
+    final ApiZmqJsonAdapter zmqJsonAdapter = new ApiZmqJsonAdapter();
+    VoyanceSiemSyslogAgent agent = new VoyanceSiemSyslogAgent(zmqJsonAdapter);
     int status = agent.start();
     System.exit(status);
   }

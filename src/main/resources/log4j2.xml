@@ -44,7 +44,7 @@
     <Property name="LogPattern">%date{yyyy-MM-dd HH:mm:ss.SSS} [%-5level][%thread] %logger{1} - %msg%n</Property>
     <Property name="LogFilePath">logs</Property>
     <Property name="LogFileName">voyance-agent</Property>
-    <Property name="AgentLogLevel">DEBUG</Property>
+    <Property name="AgentLogLevel">TRACE</Property>
   </Properties>
 
   <!--  The settings below should only be changed by advanced users. -->
@@ -65,9 +65,9 @@
       <DefaultRolloverStrategy max="10"/>
     </RollingFile>
 
-    <Syslog name="siem-syslog" host="${SiemSyslogHost}" port="${SiemSyslogPort}" protocol="${SiemSyslogProtocol}"
-            facility="LOCAL0" newLine="true">
-    </Syslog>
+<!--    <Syslog name="siem-syslog" host="${SiemSyslogHost}" port="${SiemSyslogPort}" protocol="${SiemSyslogProtocol}"-->
+<!--            facility="LOCAL0" newLine="true">-->
+<!--    </Syslog>-->
   </Appenders>
   <Loggers>
     <Root level="${AgentLogLevel}" additivity="false">
@@ -75,8 +75,8 @@
       <AppenderRef ref="rolling-file"/>
     </Root>
 
-    <Logger name="syslog" additivity="false">
-      <AppenderRef ref="siem-syslog" level="SYSLOG"/>
-    </Logger>
+<!--    <Logger name="syslog" additivity="false">-->
+<!--      <AppenderRef ref="siem-syslog" level="SYSLOG"/>-->
+<!--    </Logger>-->
   </Loggers>
 </Configuration>

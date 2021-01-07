@@ -1,0 +1,18 @@
+{
+  "enterpriseId": 1,
+  "interval": {
+    "start": %d,
+    "end": %d
+  },
+  "filter": {
+    "rules": [
+      {
+        "field": "event",
+        "op": "is",
+        "values": [
+          "MGD_CONF_APPLIED"
+        ]
+      }
+    ]
+  }
+}

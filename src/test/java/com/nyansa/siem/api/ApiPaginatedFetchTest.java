@@ -78,12 +78,13 @@ class ApiPaginatedFetchTest extends AbstractDBTest {
 
     agentDb.setLastReadTs(testApiFetch.fetchId(), t0);
     ArgumentCaptor<Timestamp> fromTsArg = ArgumentCaptor.forClass(Timestamp.class);
+    ArgumentCaptor<Timestamp> toTsArg = ArgumentCaptor.forClass(Timestamp.class);
 
-    doThrow(new IllegalArgumentException("don't expect page number to hit 0")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(0), fromTsArg.capture());
-    doReturn(makePage(1, 7, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(1), fromTsArg.capture());
-    doReturn(makePage(2, 7, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(2), fromTsArg.capture());
-    doReturn(makePage(3, 3, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(3), fromTsArg.capture());
-    doThrow(new IllegalArgumentException("don't expect page number to hit 4")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(4), fromTsArg.capture());
+    doThrow(new IllegalArgumentException("don't expect page number to hit 0")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(0), fromTsArg.capture(), toTsArg.capture());
+    doReturn(makePage(1, 7, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(1), fromTsArg.capture(), toTsArg.capture());
+    doReturn(makePage(2, 7, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(2), fromTsArg.capture(), toTsArg.capture());
+    doReturn(makePage(3, 3, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(3), fromTsArg.capture(), toTsArg.capture());
+    doThrow(new IllegalArgumentException("don't expect page number to hit 4")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(4), fromTsArg.capture(), toTsArg.capture());
 
     int processedCount = testApiFetch.fetchLatest(agentDb, mockOutputAdapter, mockHttpProxyHost);
 
@@ -91,6 +92,7 @@ class ApiPaginatedFetchTest extends AbstractDBTest {
     assertEquals(t0, fromTsArg.getValue());
 
     final Timestamp t1 = agentDb.getLastReadTs(testApiFetch.fetchId());
+    assertEquals(t1, toTsArg.getValue());
     assertTrue(t1.getTime() > t0.getTime());
   }
 
@@ -102,9 +104,9 @@ class ApiPaginatedFetchTest extends AbstractDBTest {
 
     agentDb.setLastReadTs(testApiFetch.fetchId(), t0);
 
-    doThrow(new IllegalArgumentException("don't expect page number to hit 0")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(0), any());
-    doReturn(makePage(1, 19, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(1), any());
-    doThrow(new IllegalArgumentException("don't expect page number to hit 2")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(2), any());
+    doThrow(new IllegalArgumentException("don't expect page number to hit 0")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(0), any(), any());
+    doReturn(makePage(1, 19, pageCount, totalCount)).when(testApiFetch).fetchPage(any(HttpClient.class), eq(1), any(), any());
+    doThrow(new IllegalArgumentException("don't expect page number to hit 2")).when(testApiFetch).fetchPage(any(HttpClient.class), eq(2), any(), any());
 
     int processedCount = testApiFetch.fetchLatest(agentDb, mockOutputAdapter, mockHttpProxyHost);
     assertEquals(totalCount, processedCount);

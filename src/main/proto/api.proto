@@ -1,0 +1,17 @@
+package loupepb.api;
+
+option java_package = "com.closedloupe.protobuf";
+option java_outer_classname = "Api";
+
+message ApiMessages {
+    required uint64 company_id = 1;
+    required string collector_guid = 2;
+    repeated ApiMessage messages = 3;
+}
+
+message ApiMessage {
+    required uint32 api_version = 1;
+    required string api_name = 2;
+    required uint64 timestamp = 3;
+    required string json = 4;
+}

@@ -30,6 +30,8 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -171,6 +173,10 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
    */
   public abstract String getSeverity(E elem);
 
+  public JsonNode getJson(E elem) {
+    return jsonUtil().dumpAsTree(elem);
+  }
+
 
   /**
    * Fetch latest API data based on progress tracked in a local database, and output to the adapter
@@ -186,7 +192,8 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
     if (httpProxyHost != null) {
       httpClientBuilder.setProxy(httpProxyHost);
     }
-    final CloseableHttpClient httpClient = httpClientBuilder.build();
+    final RequestConfig reqConf = RequestConfig.custom().setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
+    final CloseableHttpClient httpClient = httpClientBuilder.setDefaultRequestConfig(reqConf).build();
     int curPageNum = 1;
     int totalCount = 0;
 
@@ -195,20 +202,21 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
     if (fromTs == null || isTimestampStale(fromTs)) {
       fromTs = new Timestamp(System.currentTimeMillis() - configProperties().getDefaultLookbackSecs() * 1000);
     }
+    Timestamp toTs = new Timestamp(System.currentTimeMillis());
 
     // start fetching and processing data page by page
-    T page = fetchPage(httpClient, curPageNum, fromTs);
+    T page = fetchPage(httpClient, curPageNum, fromTs, toTs);
     while (page != null && curPageNum < page.getPageCount()) {
       totalCount += processPage(page, outputAdapter);
       curPageNum += 1;
-      page = fetchPage(httpClient, curPageNum, fromTs);
+      page = fetchPage(httpClient, curPageNum, fromTs, toTs);
     }
 
     if (page != null) {
       // process the last page
       totalCount += processPage(page, outputAdapter);
       // persist now as the new last read timestamp
-      db.setLastReadTs(fetchId(), new Timestamp(System.currentTimeMillis()));
+      db.setLastReadTs(fetchId(), toTs);
     }
 
     try {
@@ -219,7 +227,7 @@ public abstract class ApiPaginatedFetch<E, T extends PaginatedResults<E>> {
     return totalCount;
   }
 
-  T fetchPage(final HttpClient httpClient, final int pageNum, final Timestamp fromTs) {
+  T fetchPage(final HttpClient httpClient, final int pageNum, final Timestamp fromTs, final Timestamp toTs) {
     final Date fromDate = new Date(fromTs.getTime() + 1);
     final Map<String, Object> apiQuery = new HashMap<>();
     apiQuery.put("query", apiQuery());

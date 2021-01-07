@@ -69,6 +69,8 @@ public class ConfigProperties {
     static final String API_URL = "voyance.dev.api.url";
     static final String API_TOKEN = "voyance.dev.api.token";
     static final String HTTP_PROXY = "http.proxy";
+    static final String ZMQ_HOST = "zmq.host";
+    static final String ZMQ_PORT = "zmq.port";
     static final String API_FETCHES_ENABLED = "api.fetches.enabled";
     static final String API_PULL_FREQ = "api.pull.frequency.secs";
     static final String API_PULL_THREADS = "api.pull.threads";
@@ -122,6 +124,18 @@ public class ConfigProperties {
       }
     }
     return null;
+  }
+
+  public String getZmqHost() {
+    return requiredProperty(PropertyNames.ZMQ_HOST);
+  }
+
+  public int getZmqPort() {
+    return Integer.parseInt(requiredProperty(PropertyNames.ZMQ_PORT));
+  }
+
+  public int getCompanyId() {
+    return Integer.parseInt(requiredProperty("company.id"));
   }
 
   public List<ApiPaginatedFetch> getApiFetchesEnabled() {

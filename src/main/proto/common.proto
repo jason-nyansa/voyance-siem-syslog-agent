@@ -1,0 +1,47 @@
+package loupepb.common;
+
+option java_package = "com.closedloupe.protobuf";
+option java_outer_classname = "Common";
+
+enum MgrMsgType {
+    Unknown = 0;
+    Status = 1;
+    Feature = 2;
+    Amon = 3;
+    ArubaCLI = 4;
+    Lync = 5;
+    RouterRegister = 6;
+    SNMP = 7;
+    CONNECTIVITY = 8;
+    SNMPGet = 9;
+    SNMPTrap = 10;
+    Heartbeat = 11;
+    Cucm = 12;
+    Netflow = 13;
+    Syslog = 14;
+    CiscoWebhook = 15;
+    ClientAgent = 16;
+    WebApi = 17;
+    ExtremeCLI = 18;
+    CitrixOdata = 19;
+    Api = 20;
+}
+
+enum MgrMsgFlags {
+    Compress = 0x1;
+    Start = 0x2;
+    Shard = 0x4;
+    Delimited = 0x8;
+}
+
+message RouterRegistrationMessage {
+    enum RegType {
+        Register = 0;
+        Deregister = 1;
+        Reset = 2;
+    }
+    required RegType type = 1;
+    optional string client_ip = 2;
+    optional uint32 client_port = 3;
+    repeated uint32 company_ids = 4;
+}

@@ -35,6 +35,7 @@
       <outputDirectory>queries</outputDirectory>
       <includes>
         <include>*.graphql</include>
+        <include>*.txt</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -43,7 +44,7 @@
       <filtered>true</filtered>
       <fileMode>0744</fileMode>
       <includes>
-        <include>VoyanceSiemSyslogAgent.sh</include>
+        <include>VcoApiAgent.sh</include>
       </includes>
     </fileSet>
     <fileSet>

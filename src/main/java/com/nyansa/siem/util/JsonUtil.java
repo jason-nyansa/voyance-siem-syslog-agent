@@ -118,6 +118,10 @@ public class JsonUtil {
     }
   }
 
+  public JsonNode dumpAsTree(final Object obj) {
+    return outMapper.valueToTree(obj);
+  }
+
   public Map<String, String> dumpAsProperties(final Object obj) {
     try {
       final JsonNode jsonNode = outMapper.valueToTree(obj);
